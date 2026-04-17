@@ -10,7 +10,7 @@ from pathlib import Path
 
 import numpy as np
 
-from benchmark_specs import command_for_step, public_command_script
+from benchmark_specs import command_for_step, public_command_episode_label, public_command_script
 from course_common import (
     DEFAULT_CONFIG_PATH,
     apply_stage_config,
@@ -177,6 +177,7 @@ def main() -> None:
         "num_episodes": int(args.num_episodes),
         "episode_length_steps": episode_length,
         "episode_lengths_realized": episode_lengths,
+        "episode_labels": [public_command_episode_label(idx) for idx in range(int(args.num_episodes))],
         "rollout_npz": str(rollout_npz),
     }
 

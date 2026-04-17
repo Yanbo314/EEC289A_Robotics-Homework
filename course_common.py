@@ -150,7 +150,16 @@ def apply_stage_config(env_cfg: Any, ppo_cfg: Any, config: dict[str, Any], stage
     defaults = config["training_defaults"]
     runtime_overrides = config.get("runtime_overrides", {})
 
-    env_cfg.command_config.a = list(stage_cfg["command_amplitude"])
+    if "command_range" in stage_cfg:
+        env_cfg.command_config.min = list(stage_cfg["command_range"]["min"])
+        env_cfg.command_config.max = list(stage_cfg["command_range"]["max"])
+    else:
+        # Backward compatibility for older configs that used symmetric amplitudes.
+        amplitude = [float(value) for value in stage_cfg["command_amplitude"]]
+        env_cfg.command_config.min = [-value for value in amplitude]
+        env_cfg.command_config.max = amplitude
+    if "command_keep_prob" in stage_cfg:
+        env_cfg.command_config.b = list(stage_cfg["command_keep_prob"])
     env_cfg.reward_config.scales.action_rate = float(stage_cfg["reward_scales"]["action_rate"])
     env_cfg.reward_config.scales.energy = float(stage_cfg["reward_scales"]["energy"])
 

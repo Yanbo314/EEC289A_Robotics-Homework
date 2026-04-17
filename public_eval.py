@@ -22,6 +22,8 @@ from typing import Any
 
 import numpy as np
 
+from benchmark_specs import public_command_episode_label
+
 
 ROOT = Path(__file__).resolve().parent
 DEFAULT_CONFIG_PATH = ROOT / "configs" / "course_config.json"
@@ -164,6 +166,7 @@ def compute_per_episode_summary(bundle: dict[str, np.ndarray]) -> list[dict[str,
         summaries.append(
             {
                 "episode_id": int(eid),
+                "episode_label": public_command_episode_label(int(eid)),
                 "num_steps": int(np.sum(mask)),
                 "velocity_tracking_error": _safe_mean(np.linalg.norm(command_lin[mask] - measured_lin[mask], axis=-1)),
                 "yaw_tracking_error": _safe_mean(np.abs(command_yaw[mask] - measured_yaw[mask])),

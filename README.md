@@ -62,6 +62,15 @@ quick_policy_check.py              Tiny sanity-check script
 benchmark_specs.py                 Deterministic command scripts
 ```
 
+## Baseline scope
+
+The default baseline in this repo is intentionally narrow:
+- training samples only forward `vx` commands
+- the public benchmark still probes forward, lateral, yaw-only, and combined motion
+
+That makes the baseline easy to understand while leaving clear room for
+students to extend the command space and measure the effect with the benchmark.
+
 ## Expected Colab workflow
 
 ### 1. Setup and environment inspection

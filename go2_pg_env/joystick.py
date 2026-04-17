@@ -96,8 +96,9 @@ def default_config() -> config_dict.ConfigDict:
             kick_wait_times=[1.0, 3.0],
         ),
         command_config=config_dict.create(
-            # Command amplitudes for [vx, vy, yaw_rate]
-            a=[1.0, 0.4, 1.0],
+            # Command sampling ranges for [vx, vy, yaw_rate]
+            min=[-1.0, -0.4, -1.0],
+            max=[1.0, 0.4, 1.0],
             # Probability that each command channel stays active
             b=[0.9, 0.25, 0.5],
         ),
@@ -175,7 +176,8 @@ class Joystick(go2_base.Go2Env):
             foot_linvel_sensor_adr.append(list(range(sensor_adr, sensor_adr + sensor_dim)))
         self._foot_linvel_sensor_adr = jp.array(foot_linvel_sensor_adr)
 
-        self._cmd_a = jp.array(self._config.command_config.a)
+        self._cmd_min = jp.array(self._config.command_config.min)
+        self._cmd_max = jp.array(self._config.command_config.max)
         self._cmd_b = jp.array(self._config.command_config.b)
 
     def reset(self, rng: jax.Array) -> mjx_env.State:
@@ -230,7 +232,7 @@ class Joystick(go2_base.Go2Env):
         rng, key1, key2 = jax.random.split(rng, 3)
         time_until_next_cmd = jax.random.exponential(key1) * 5.0
         steps_until_next_cmd = jp.round(time_until_next_cmd / self.dt).astype(jp.int32)
-        command = jax.random.uniform(key2, shape=(3,), minval=-self._cmd_a, maxval=self._cmd_a)
+        command = jax.random.uniform(key2, shape=(3,), minval=self._cmd_min, maxval=self._cmd_max)
 
         info = {
             "rng": rng,
@@ -535,7 +537,7 @@ class Joystick(go2_base.Go2Env):
 
     def sample_command(self, rng: jax.Array, current_command: jax.Array) -> jax.Array:
         rng, y_rng, w_rng, z_rng = jax.random.split(rng, 4)
-        candidate = jax.random.uniform(y_rng, shape=(3,), minval=-self._cmd_a, maxval=self._cmd_a)
+        candidate = jax.random.uniform(y_rng, shape=(3,), minval=self._cmd_min, maxval=self._cmd_max)
         active_mask = jax.random.bernoulli(z_rng, self._cmd_b, shape=(3,))
         blend_mask = jax.random.bernoulli(w_rng, 0.5, shape=(3,))
         return current_command - blend_mask * (current_command - candidate * active_mask)

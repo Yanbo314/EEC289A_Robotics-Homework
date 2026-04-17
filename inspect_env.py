@@ -91,7 +91,9 @@ def main() -> None:
         "critic_obs_size": CRITIC_OBS_SIZE,
         "observation_layout": observation_layout(),
         "obs_shapes_from_reset": obs_shapes,
-        "command_amplitude": list(map(float, env_cfg.command_config.a)),
+        "command_range_min": list(map(float, env_cfg.command_config.min)),
+        "command_range_max": list(map(float, env_cfg.command_config.max)),
+        "command_keep_prob": list(map(float, env_cfg.command_config.b)),
         "reward_scales_subset": {
             "action_rate": float(env_cfg.reward_config.scales.action_rate),
             "energy": float(env_cfg.reward_config.scales.energy),
